@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EC Web Calculator | Estructura de los Computadores</title>
+  <meta name="description" content="Calculadora web interactiva para algoritmos de Estructura de los Computadores: mapeo de memoria, división sin restauración, Booth y operaciones binarias." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] },
+          colors: {
+            ink: '#0f172a', brand: '#2563eb', brandDark: '#1d4ed8', soft: '#eff6ff'
+          },
+          boxShadow: { soft: '0 18px 60px rgba(15,23,42,.10)' }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-900">
+  <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+      <a href="#top" class="flex items-center gap-3">
+        <span class="grid h-10 w-10 place-items-center rounded-2xl bg-brand text-lg font-black text-white shadow-lg shadow-blue-500/20">EC</span>
+        <span>
+          <span class="block text-sm font-extrabold uppercase tracking-wide text-slate-950">EC Web Calculator</span>
+          <span class="hidden text-xs text-slate-500 sm:block">Scripts MATLAB convertidos a web interactiva</span>
+        </span>
+      </a>
+      <nav class="hidden items-center gap-2 lg:flex" aria-label="Secciones">
+        <button class="tab-btn active" data-tab="memory">Mapear memoria</button>
+        <button class="tab-btn" data-tab="division">División</button>
+        <button class="tab-btn" data-tab="booth">Booth</button>
+        <button class="tab-btn" data-tab="utils">Utilidades</button>
+      </nav>
+      <button id="mobileMenuBtn" class="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold lg:hidden">Menú</button>
+    </div>
+    <div id="mobileMenu" class="hidden border-t border-slate-200 bg-white px-4 py-3 lg:hidden">
+      <div class="grid gap-2">
+        <button class="tab-btn mobile active" data-tab="memory">Mapear memoria</button>
+        <button class="tab-btn mobile" data-tab="division">División sin restauración</button>
+        <button class="tab-btn mobile" data-tab="booth">Multiplicación Booth</button>
+        <button class="tab-btn mobile" data-tab="utils">Utilidades binarias</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top" class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <section class="mb-8 overflow-hidden rounded-[2rem] bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 p-6 text-white shadow-soft sm:p-8 lg:p-10">
+      <div class="grid gap-8 lg:grid-cols-[1.2fr_.8fr] lg:items-center">
+        <div>
+          <p class="mb-3 inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-[.2em] text-blue-100">Estructura de los Computadores · UA</p>
+          <h1 class="text-3xl font-black tracking-tight sm:text-5xl">Calculadora explicativa para algoritmos de EC.</h1>
+          <p class="mt-4 max-w-3xl text-base leading-7 text-slate-200 sm:text-lg">Proyecto web estático construido a partir de los scripts MATLAB del repositorio. Permite introducir datos, ver resultados paso a paso y generar un PDF con entradas, tablas y explicación del cálculo.</p>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <button class="rounded-2xl bg-white px-5 py-3 text-sm font-extrabold text-slate-950 hover:bg-blue-50" data-tab-shortcut="memory">Empezar con memoria</button>
+            <button id="downloadCurrentPdf" class="rounded-2xl border border-white/20 px-5 py-3 text-sm font-extrabold text-white hover:bg-white/10">Descargar PDF actual</button>
+          </div>
+        </div>
+        <div class="rounded-3xl border border-white/10 bg-white/10 p-5 backdrop-blur">
+          <h2 class="text-lg font-bold">Qué incluye</h2>
+          <div class="mt-4 grid gap-3 text-sm text-slate-200">
+            <p><strong class="text-white">Mapeo de memoria:</strong> rangos inicial/final, bloques y direcciones en binario.</p>
+            <p><strong class="text-white">División sin restauración:</strong> registros A, Q, M e iteraciones.</p>
+            <p><strong class="text-white">Booth:</strong> multiplicación con complemento a dos, A/Q/Q-1 y desplazamientos.</p>
+            <p><strong class="text-white">Utilidades:</strong> conversiones, suma/resta y desplazamientos binarios.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="memory" class="tab-panel active">
+      <div class="grid gap-6 lg:grid-cols-[.9fr_1.1fr]">
+        <article class="card">
+          <div class="section-title-block">
+            <p class="kicker">Algoritmo 1</p>
+            <h2>Mapear memoria</h2>
+            <p>Calcula el rango total de una memoria y reparte las direcciones entre los chips disponibles. Es equivalente a la función <code>mapearMemoria</code> del repositorio.</p>
+          </div>
+
+          <form id="memoryForm" class="mt-6 grid gap-5">
+            <div class="grid gap-4 sm:grid-cols-3">
+              <label class="field sm:col-span-1">Capacidad total
+                <input id="memAmount" type="number" min="1" value="2" />
+              </label>
+              <label class="field">Unidad
+                <select id="memUnit"><option value="1">direcciones</option><option value="1024">K</option><option selected value="1048576">M</option><option value="1073741824">G</option></select>
+              </label>
+              <label class="field">Ancho de palabra
+                <input id="memWidth" type="number" min="1" value="32" />
+              </label>
+            </div>
+            <label class="field">Dirección inicial hexadecimal
+              <input id="memStart" type="text" value="70000" placeholder="Ej. 0, 70000, FF00" />
+            </label>
+
+            <div>
+              <div class="mb-3 flex items-center justify-between gap-3">
+                <h3 class="font-bold text-slate-950">Chips</h3>
+                <button type="button" id="addChip" class="btn-secondary">Añadir chip</button>
+              </div>
+              <div id="chipsList" class="grid gap-3"></div>
+              <p class="mt-2 text-xs text-slate-500">Puedes añadir chips agrupados por cantidad. La herramienta los expande y los mapea en orden.</p>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+              <button type="submit" class="btn-primary">Calcular memoria</button>
+              <button type="button" id="memoryExample" class="btn-ghost">Cargar ejemplo README</button>
+            </div>
+          </form>
+        </article>
+
+        <article class="card result-card">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div class="section-title-block compact">
+              <p class="kicker">Resultado</p>
+              <h2>Rangos y pasos</h2>
+              <p>Primero se calcula la dirección final total. Después, cada chip ocupa un bloque consecutivo.</p>
+            </div>
+            <button class="btn-secondary" data-pdf="memory">PDF memoria</button>
+          </div>
+          <div id="memoryOutput" class="mt-6"></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="division" class="tab-panel">
+      <div class="grid gap-6 lg:grid-cols-[.85fr_1.15fr]">
+        <article class="card">
+          <div class="section-title-block">
+            <p class="kicker">Algoritmo 2</p>
+            <h2>División sin restauración</h2>
+            <p>Ejecuta el algoritmo con registros <code>A</code>, <code>Q</code> y <code>M</code>. Los binarios se introducen como vectores, igual que en MATLAB, pero sin espacios obligatorios.</p>
+          </div>
+          <form id="divisionForm" class="mt-6 grid gap-5">
+            <label class="field">Dividendo Q
+              <input id="divDividend" type="text" value="0111" placeholder="Ej. 0111" />
+            </label>
+            <label class="field">Divisor M
+              <input id="divDivisor" type="text" value="0011" placeholder="Ej. 0011" />
+            </label>
+            <label class="field">Bits de trabajo
+              <select id="divBitsMode"><option value="auto" selected>Automático: máximo entre dividendo y divisor</option><option value="custom">Personalizado</option></select>
+            </label>
+            <label id="divCustomBitsWrap" class="field hidden">Número de bits
+              <input id="divCustomBits" type="number" min="2" value="4" />
+            </label>
+            <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+              Esta implementación mantiene la lógica de la función MATLAB original: inicializa <code>A = -M</code> antes del bucle y después aplica desplazamientos, suma/resta y actualización del bit final de <code>Q</code>.
+            </div>
+            <div class="flex flex-wrap gap-3">
+              <button type="submit" class="btn-primary">Calcular división</button>
+              <button type="button" id="divisionExample" class="btn-ghost">Ejemplo 7 / 3</button>
+            </div>
+          </form>
+        </article>
+        <article class="card result-card">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div class="section-title-block compact">
+              <p class="kicker">Resultado</p>
+              <h2>Tabla de iteraciones</h2>
+              <p>Cada fila representa una acción del algoritmo sobre los registros.</p>
+            </div>
+            <button class="btn-secondary" data-pdf="division">PDF división</button>
+          </div>
+          <div id="divisionOutput" class="mt-6"></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="booth" class="tab-panel">
+      <div class="grid gap-6 lg:grid-cols-[.85fr_1.15fr]">
+        <article class="card">
+          <div class="section-title-block">
+            <p class="kicker">Algoritmo 3</p>
+            <h2>Multiplicación Booth</h2>
+            <p>El script MATLAB original está marcado como no terminado. Aquí se proporciona una implementación completa del algoritmo de Booth con complemento a dos.</p>
+          </div>
+          <form id="boothForm" class="mt-6 grid gap-5">
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="field">Multiplicando M
+                <input id="boothM" type="number" value="-3" />
+              </label>
+              <label class="field">Multiplicador Q
+                <input id="boothQ" type="number" value="5" />
+              </label>
+            </div>
+            <label class="field">Bits por registro
+              <select id="boothBitsMode"><option value="auto" selected>Automático mínimo</option><option value="custom">Personalizado</option></select>
+            </label>
+            <label id="boothCustomBitsWrap" class="field hidden">Número de bits
+              <input id="boothCustomBits" type="number" min="2" value="5" />
+            </label>
+            <div class="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-950">
+              Reglas usadas: <code>Q0Q-1 = 10</code> ⇒ <code>A = A - M</code>; <code>01</code> ⇒ <code>A = A + M</code>; <code>00</code> o <code>11</code> ⇒ sin operación. Después se desplaza aritméticamente <code>A,Q,Q-1</code> a la derecha.
+            </div>
+            <div class="flex flex-wrap gap-3">
+              <button type="submit" class="btn-primary">Calcular Booth</button>
+              <button type="button" id="boothExample" class="btn-ghost">Ejemplo -3 × 5</button>
+            </div>
+          </form>
+        </article>
+        <article class="card result-card">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div class="section-title-block compact">
+              <p class="kicker">Resultado</p>
+              <h2>Producto y pasos</h2>
+              <p>El resultado final se obtiene concatenando <code>A</code> y <code>Q</code>.</p>
+            </div>
+            <button class="btn-secondary" data-pdf="booth">PDF Booth</button>
+          </div>
+          <div id="boothOutput" class="mt-6"></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="utils" class="tab-panel">
+      <div class="grid gap-6 lg:grid-cols-[.9fr_1.1fr]">
+        <article class="card">
+          <div class="section-title-block">
+            <p class="kicker">Funciones menores</p>
+            <h2>Utilidades binarias</h2>
+            <p>Port de las funciones auxiliares del repositorio: conversiones, complemento a dos, suma, resta y desplazamientos.</p>
+          </div>
+          <form id="utilsForm" class="mt-6 grid gap-5">
+            <label class="field">Operación
+              <select id="utilOperation">
+                <option value="dec2bin">Decimal a binario con signo</option>
+                <option value="bin2dec">Binario con signo a decimal</option>
+                <option value="sum">Suma binaria</option>
+                <option value="sub">Resta binaria A - B</option>
+                <option value="opposite">Opuesto / complemento a dos</option>
+                <option value="shiftLeft">Desplazamiento izquierda</option>
+                <option value="shiftRight">Desplazamiento derecha</option>
+                <option value="compare">Comparar A y B</option>
+              </select>
+            </label>
+            <div id="utilDecimalWrap" class="field">Decimal
+              <input id="utilDecimal" type="number" value="-13" />
+            </div>
+            <div id="utilBinaryAWrap" class="field hidden">Binario A
+              <input id="utilBinaryA" type="text" value="1101" />
+            </div>
+            <div id="utilBinaryBWrap" class="field hidden">Binario B
+              <input id="utilBinaryB" type="text" value="0011" />
+            </div>
+            <label id="utilCompareWrap" class="field hidden">Comparación
+              <select id="utilCompare"><option>&gt;</option><option>&gt;=</option><option>==</option><option>&lt;</option><option>&lt;=</option><option value="major">mayor</option><option value="minor">menor</option></select>
+            </label>
+            <label class="field">Bits de salida
+              <input id="utilBits" type="number" min="1" value="8" />
+            </label>
+            <button type="submit" class="btn-primary">Calcular utilidad</button>
+          </form>
+        </article>
+        <article class="card result-card">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div class="section-title-block compact">
+              <p class="kicker">Resultado</p>
+              <h2>Salida explicada</h2>
+              <p>Se muestran los valores normalizados y la operación aplicada.</p>
+            </div>
+            <button class="btn-secondary" data-pdf="utils">PDF utilidad</button>
+          </div>
+          <div id="utilsOutput" class="mt-6"></div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-slate-200 bg-white py-8">
+    <div class="mx-auto max-w-7xl px-4 text-sm text-slate-500 sm:px-6 lg:px-8">
+      <p><strong class="text-slate-800">EC Web Calculator.</strong> Proyecto estático HTML + CSS + JS. La exportación PDF se genera en el navegador con jsPDF.</p>
+    </div>
+  </footer>
+
+  <template id="chipRowTemplate">
+    <div class="chip-row grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:grid-cols-[1fr_1fr_1fr_auto]">
+      <label class="field small">Capacidad
+        <input class="chip-amount" type="number" min="1" value="64" />
+      </label>
+      <label class="field small">Unidad
+        <select class="chip-unit"><option value="1">direcciones</option><option selected value="1024">K</option><option value="1048576">M</option><option value="1073741824">G</option></select>
+      </label>
+      <label class="field small">Cantidad
+        <input class="chip-count" type="number" min="1" value="1" />
+      </label>
+      <button type="button" class="remove-chip self-end rounded-xl border border-red-200 px-3 py-2 text-sm font-bold text-red-700 hover:bg-red-50">Quitar</button>
+    </div>
+  </template>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
