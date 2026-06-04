@@ -427,7 +427,7 @@ function renderUtils() {
     const res = calculateUtils();
     state.reports.utils = res;
     $('#utilsOutput').innerHTML = `
-      ${summary([['Resultado', res.result], ['Operación', $('#utilOperation option:checked').text()], ['Bits', String(res.input.bits)]])}
+      ${summary([['Resultado', res.result], ['Operación', $('#utilOperation option:checked').textContent.trim()], ['Bits', String(res.input.bits)]])}
       <div class="mt-5 step-box">${res.steps.map(s => `<p>${htmlEscape(s)}</p>`).join('')}</div>
       <div class="mt-5">${table(['Campo', 'Valor'], res.rows.map(r => [htmlEscape(r[0]), `<span class="bin">${htmlEscape(r[1])}</span>`]))}</div>
     `;
